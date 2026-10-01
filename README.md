@@ -106,9 +106,29 @@ file ends up cleaned/remuxed/reordered but not re-encoded — this is the
 
 `reorder_streams` (final pass) → **`hard_size_gate`**: a stricter check
 (0%–102% of original):
-- **Pass** → `replace_original` — the job actually replaces the library file
+- **Pass** → `replace_original` — the job actually replaces the library file,
+  then tells Sonarr/Radarr about it (see section 9)
 - **Fail** → `reset_to_original` — dead end, no replacement happens; the
   job ends without touching the original file
+
+## 9. Notify Sonarr / Radarr
+
+Re-encoding can change the container (`.mp4` → `.mkv`), so the path Sonarr
+or Radarr has on record stops existing. Anything downstream that trusts the
+\*arr's path (Bazarr especially) then fails with "Path does not exist".
+After `replace_original`, two **Notify Radarr or Sonarr** (2.0.0) nodes
+fix that:
+
+- `notify_sonarr` — asks Sonarr's `/api/v3/parse` whether it knows the file;
+  if so, sends `RefreshSeries` and waits (up to 120s) for it to finish.
+  - handle 1 (notified) → done
+  - handle 2 (Sonarr doesn't know this file) → `notify_radarr`
+- `notify_radarr` — same thing against Radarr with `RefreshMovie`. Either
+  handle ends the flow; libraries neither \*arr manages just pass through.
+
+One flow serves both TV and movie libraries, hence the chain instead of a
+per-library branch. Host and API key values are `REDACTED` in `data.txt` —
+fill in your own after importing.
 
 ---
 

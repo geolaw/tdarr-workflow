@@ -582,6 +582,40 @@
         "x": 1061,
         "y": 560
       }
+    },
+    {
+      "name": "Notify Sonarr",
+      "sourceRepo": "Community",
+      "pluginName": "notifyRadarrOrSonarr",
+      "version": "2.0.0",
+      "fpEnabled": true,
+      "id": "notify_sonarr",
+      "position": {
+        "x": 1061,
+        "y": 700
+      },
+      "inputsDB": {
+        "arr": "sonarr",
+        "arr_api_key": "REDACTED",
+        "arr_host": "http://SONARR_HOST:8989"
+      }
+    },
+    {
+      "name": "Notify Radarr",
+      "sourceRepo": "Community",
+      "pluginName": "notifyRadarrOrSonarr",
+      "version": "2.0.0",
+      "fpEnabled": true,
+      "id": "notify_radarr",
+      "position": {
+        "x": 1261,
+        "y": 840
+      },
+      "inputsDB": {
+        "arr": "radarr",
+        "arr_api_key": "REDACTED",
+        "arr_host": "http://RADARR_HOST:7878"
+      }
     }
   ],
   "flowEdges": [
@@ -986,6 +1020,18 @@
       "sourceHandle": "2",
       "target": "reset_to_original",
       "id": "e_gate_fallback"
+    },
+    {
+      "source": "replace_original",
+      "sourceHandle": "1",
+      "target": "notify_sonarr",
+      "id": "e_replace_notify_sonarr"
+    },
+    {
+      "source": "notify_sonarr",
+      "sourceHandle": "2",
+      "target": "notify_radarr",
+      "id": "e_sonarr_unknown_radarr"
     }
   ]
 }
